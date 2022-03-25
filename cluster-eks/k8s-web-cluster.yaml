@@ -1,0 +1,14 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name  : k8s-web
+  version: "1.21"
+  region: eu-north-1
+
+nodeGroups:
+  - name             : worker
+    instanceType     : t3.small
+    desiredCapacity  : 2
+    minSize: 1
+    maxSize: 5

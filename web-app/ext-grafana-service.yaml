@@ -1,0 +1,7 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: grafana-service
+spec:
+  type: ExternalName
+  externalName: prometheus-grafana.monitoring.svc.cluster.local

@@ -1,0 +1,17 @@
+---
+defaultRules:
+  rules:
+    etcd: false
+    kubeScheduler: false
+kubeControllerManager:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeScheduler:
+  enabled: false
+grafana:
+  adminPassword: grafana
+prometheus:
+  prometheusSpec:
+    podMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false

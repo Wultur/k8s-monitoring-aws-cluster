@@ -1,0 +1,88 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+    spec:
+      containers:
+        - name: web-nginx
+          image: nginx:1.18-alpine
+          resources:
+            limits:
+              memory: "64Mi"
+              cpu: "100m"
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - name: config-volume
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+            - name: config-volume
+              mountPath: /etc/nginx/conf.d/nginx.cloudmacloud.ru.conf
+              subPath: nginx.cloudmacloud.ru.conf
+            - name: config-volume
+              mountPath: /etc/nginx/conf.d/apache.conf
+              subPath: apache.conf
+            - name: config-volume
+              mountPath: /etc/nginx/conf.d/blueserver.conf
+              subPath: blueserver.conf
+            - name: config-volume
+              mountPath: /etc/nginx/conf.d/redserver.conf
+              subPath: redserver.conf
+            - name: site-content
+              mountPath: /var/www
+              subPath: volume
+        - name: web-php
+          image: php:7.4-fpm-alpine
+          resources:
+            limits:
+              memory: "64Mi"
+              cpu: "100m"
+          volumeMounts:
+            - name: site-content
+              mountPath: /var/www
+              subPath: volume
+            - name: site-content
+              mountPath: /usr/local/apache2/htdocs/apache.cloudmacloud.ru
+              subPath: volume/apache.cloudmacloud.ru
+        - name: web-apache
+          image: httpd:2.4-alpine
+          resources:
+            limits:
+              memory: "64Mi"
+              cpu: "100m"
+          volumeMounts:
+            - name: config-volume
+              mountPath: /usr/local/apache2/conf/httpd.conf
+              subPath: httpd.conf
+            - name: config-volume
+              mountPath: /usr/local/apache2/conf/extra/httpd-vhosts.conf
+              subPath: httpd-vhosts.conf
+            - name: site-content
+              mountPath: /usr/local/apache2/htdocs/apache.cloudmacloud.ru
+              subPath: volume/apache.cloudmacloud.ru
+      initContainers:
+        - name: init-volume
+          image: wultur/init-volume:latest
+          command: ["sh", "-c", "cp -R volume /content/volume"]
+          volumeMounts:
+            - name: site-content
+              mountPath: /content
+      volumes:
+        - name: site-content
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: web-app-config
